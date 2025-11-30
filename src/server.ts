@@ -72,7 +72,7 @@ app.post("/users", async(req:Request, res:Response)=>{
     //  {
     // "message": "data inserted"
     //  }
-    // console.log(result.rows[0]);
+    console.log(result.rows[0]);
     return res.status(201).json({
       success:true,
       message: "User created successfully",
@@ -99,18 +99,58 @@ app.post("/users", async(req:Request, res:Response)=>{
     // res.send({message: "data inserted"})
 //postman thke send korle data automatically neon db te table format e row te dekhabe
   } catch (err: any) {
-    res.status(500).json({
-      success: false,
-      message: err.message
-    })
+    
   }
 
 
-  res.status(201).json({
-    success: true,
-    message: "API is working",
-  })
+  // res.status(201).json({
+  //   success: true,
+  //   message: "API is working",
+  // })
 });
+
+app.get("/users",async(req: Request, res: Response)=>{
+  try{
+    const result = await pool.query(`SELECT * FROM users`);
+    res.status(200).json({
+      success:true,
+      message: "Users retrieved successfully",
+      data: result.rows
+    })
+  } catch(err: any){
+    res.status(500).json({
+      success: false,
+      message: err.message,
+      details: err
+    })
+  }
+})
+
+//single user
+
+app.get("/users/:id", async (req:Request, res:Response)=>{
+  // console.log(req.params.id);
+  try{
+   const result = await pool.query(`SELECT * FROM users WHERE id = $1`,[req.params.id]);
+  if(result.rows.length === 0){
+    res.status(404).json({
+      success:false,
+      message:"User not found",
+    });
+  }else{
+    res.status(200).json({
+      success:true,
+      message:"User fetched successfully",
+      data: result.rows[0],
+    })
+  }
+  } catch(err:any) {
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    })
+  }
+})
 
 //postman theke jodi ekhon post data dekhte chai tahole tahole cannot post dekhabe..
 //kintu http://localhost:5000/users ei route theke postman e hit korle setar console e {
