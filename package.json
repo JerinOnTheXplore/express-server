@@ -5,16 +5,18 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev":"tsx watch src/server.ts"
+    "dev": "tsx watch src/server.ts"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.21.2"
+    "express": "^4.21.2",
+    "pg": "^8.16.3"
   },
   "devDependencies": {
     "@types/express": "^5.0.5",
+    "@types/pg": "^8.15.6",
     "tsx": "^4.20.6",
     "typescript": "^5.9.3"
   }
