@@ -59,14 +59,65 @@ app.get('/', (req:Request, res:Response) => {
   res.send('Hello Next level developers!')
 });
 //ekhane root route e post method e hit korle ei route ei hit korbe..post request korte amar postman lagbe..
-app.post("/",(req:Request, res:Response)=>{
-  console.log(req.body);
+app.post("/users", async(req:Request, res:Response)=>{
+  // console.log(req.body);
+  //req jehetu sofol ba failed hote pare tai try/catch use korbo..r async use korbo..
+  const {name, email} = req.body;
+//try block e query handle korbo
+  try {
+    const result = await pool.query(
+      `INSERT INTO users(name, email) VALUES($1, $2) RETURNING *`,
+      [name, email]
+    );//ebar eta dekhabe 
+    //  {
+    // "message": "data inserted"
+    //  }
+    // console.log(result.rows[0]);
+    return res.status(201).json({
+      success:true,
+      message: "User created successfully",
+      data: result.rows[0]
+    })/*
+    evabe korle emon data soho postmen e ashe
+    {
+    "success": true,
+    "message": "User created successfully",
+    "data": {
+        "id": 8,
+        "name": "Miki the cute billi",
+        "email": "mikkii@gmail.com",
+        "age": null,
+        "phone": null,
+        "address": null,
+        "created_at": "2025-11-30T13:14:26.659Z",
+        "updated_at": "2025-11-30T13:14:26.659Z"
+    }
+}
+    */
+    // Ek route theke duibar response send kora allowed na...
+    //Ei jonno Node bole .. Headers already sent!
+    // res.send({message: "data inserted"})
+//postman thke send korle data automatically neon db te table format e row te dekhabe
+  } catch (err: any) {
+    res.status(500).json({
+      success: false,
+      message: err.message
+    })
+  }
+
 
   res.status(201).json({
     success: true,
     message: "API is working",
   })
-})
+});
+
+//postman theke jodi ekhon post data dekhte chai tahole tahole cannot post dekhabe..
+//kintu http://localhost:5000/users ei route theke postman e hit korle setar console e {
+//     "success": true,
+//     "message": "API is working"
+// }.............eta dekhay
+//ekhonkaj hobe data k table er modhdhe rekhe dewa..
 
 app.listen(port, () => {
   console.log(`Example app listening on port ${port}`)
