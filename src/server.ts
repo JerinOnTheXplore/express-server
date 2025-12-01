@@ -1,7 +1,7 @@
 import dotenv from "dotenv";
 import path from "path"
 dotenv.config({path: path.join(process.cwd(), '.env')});//cwd=current working directory
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import {Pool} from "pg";
 const app = express()
 const port = 5000;
@@ -44,6 +44,14 @@ const initDB = async() => {
 };
 
 initDB();
+
+//logger middleware
+
+const logger = (req:Request, res:Response, next:NextFunction) =>{
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}\n`);
+  next();
+}
+
 //form data k pete hole eki rokom json data pawar jonno j middleware use korrlam..thik eki vabe nicher moto kore
 
 // app.use(express.urlencoded());//eta use korte hoy
@@ -55,7 +63,7 @@ initDB();
 //database pull is a connection pull..amra jokhon data base e kono kichu insert kori tokhon postgres e kono connection pull na thakle ekta kore connection req toiri kore then oi query ta run korbe..eta moteo efficient na..rather eta slow ekta process..tai amra jodi ekta connection pull toiri kore rakhi jekhane a few connection thakbe..ei connection guloo connection notun kore toiri na kore connection reuse korte help korbe..evabe efficient vabe kora jay
 //dhori , 2 ta table thakbe jekhane user table ar todos table thakbe..user er id ounjayi data to do te boshbe..
 
-app.get('/', (req:Request, res:Response) => {
+app.get('/',logger, (req:Request, res:Response) => {
   res.send('Hello Next level developers!')
 });
 //ekhane root route e post method e hit korle ei route ei hit korbe..post request korte amar postman lagbe..
@@ -246,6 +254,14 @@ app.get("/todos",async(req: Request, res: Response)=>{
       details: err
     })
   }
+})
+
+app.use((req,res)=>{
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+    path: req.path,
+  })
 })
 
 app.listen(port, () => {
