@@ -1,6 +1,8 @@
 import  config  from "./config";
 import express, { NextFunction, Request, Response } from "express";
 import initDB, { pool } from "./config/db";
+import logger from "./middleware/logger";
+import { userRoutes } from "./modules/user/user.routes";
 const app = express();
 const port = config.port;
 //parser
@@ -9,13 +11,6 @@ app.use(express.json());//express basically ekta middleware based framework
 
 //initializing DB
 initDB();
-
-//logger middleware
-
-const logger = (req:Request, res:Response, next:NextFunction) =>{
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}\n`);
-  next();
-}
 
 //form data k pete hole eki rokom json data pawar jonno j middleware use korrlam..thik eki vabe nicher moto kore
 
@@ -32,73 +27,12 @@ app.get('/',logger, (req:Request, res:Response) => {
   res.send('Hello Next level developers!')
 });
 //ekhane root route e post method e hit korle ei route ei hit korbe..post request korte amar postman lagbe..
-app.post("/users", async(req:Request, res:Response)=>{
-  // console.log(req.body);
-  //req jehetu sofol ba failed hote pare tai try/catch use korbo..r async use korbo..
-  const {name, email} = req.body;
-//try block e query handle korbo
-  try {
-    const result = await pool.query(
-      `INSERT INTO users(name, email) VALUES($1, $2) RETURNING *`,
-      [name, email]
-    );//ebar eta dekhabe 
-    //  {
-    // "message": "data inserted"
-    //  }
-    console.log(result.rows[0]);
-    return res.status(201).json({
-      success:true,
-      message: "User created successfully",
-      data: result.rows[0]
-    })/*
-    evabe korle emon data soho postmen e ashe
-    {
-    "success": true,
-    "message": "User created successfully",
-    "data": {
-        "id": 8,
-        "name": "Miki the cute billi",
-        "email": "mikkii@gmail.com",
-        "age": null,
-        "phone": null,
-        "address": null,
-        "created_at": "2025-11-30T13:14:26.659Z",
-        "updated_at": "2025-11-30T13:14:26.659Z"
-    }
-}
-    */
-    // Ek route theke duibar response send kora allowed na...
-    //Ei jonno Node bole .. Headers already sent!
-    // res.send({message: "data inserted"})
-//postman thke send korle data automatically neon db te table format e row te dekhabe
-  } catch (err: any) {
-    
-  }
 
-
-  // res.status(201).json({
-  //   success: true,
-  //   message: "API is working",
-  // })
-});
+app.use("/users", userRoutes);
 
 //users CRUD
-app.get("/users",async(req: Request, res: Response)=>{
-  try{
-    const result = await pool.query(`SELECT * FROM users`);
-    res.status(200).json({
-      success:true,
-      message: "Users retrieved successfully",
-      data: result.rows
-    })
-  } catch(err: any){
-    res.status(500).json({
-      success: false,
-      message: err.message,
-      details: err
-    })
-  }
-})
+
+
 
 //single user
 
