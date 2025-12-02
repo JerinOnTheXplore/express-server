@@ -1,9 +1,15 @@
 import { pool } from "../../config/db";
+import bcrypt from "bcryptjs";
 
-const createUser = async (name:string , email:string) =>{
+const createUser = async (payload: Record<string, unknown>) =>{
+    const {name, email, password} = payload;
+    //password k plain text e pathabona..password k hash kore pathabo
+
+    const hashedPass = await bcrypt.hash(password as string, 10);
+//"password": "$2b$10$zOPzWVkG53a3AwigYq6GE.ku31iqSf0JovRISF5WkUfBYiItsrmKm",
     const result = await pool.query(
-      `INSERT INTO users(name, email) VALUES($1, $2) RETURNING *`,
-      [name, email]
+      `INSERT INTO users(name, email,password) VALUES($1, $2, $3) RETURNING *`,
+      [name, email,hashedPass]
     );
 
     return result;//result take obossoi return korte hoy ..karon eta na korle void type thake..
