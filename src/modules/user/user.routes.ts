@@ -8,6 +8,8 @@ import express, { Request, Response, Router } from "express";
 import { pool } from "../../config/db";
 import { userControllers } from "./user.controller";
 import { userServices } from "./user.service";
+import logger from "../../middleware/logger";
+import auth from "../../middleware/auth";
 
 const router = express.Router();
 //app.use("/users", userRoutes);
@@ -16,7 +18,7 @@ const router = express.Router();
 //ar service holo business logic handle korbe..
 router.post("/",userControllers.createUser);
 
-router.get("/",userControllers.getUser);
+router.get("/",logger,auth(), userControllers.getUser);
 
 router.get("/:id", userControllers.getSingleUser);
 
