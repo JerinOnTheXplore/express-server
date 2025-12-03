@@ -5,17 +5,23 @@
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import config from "../config";
-
-const auth = () =>{
+//roles = ["admin", "user"]
+const auth = (...roles:string[]) =>{
     return async (req: Request, res: Response, next: NextFunction) =>{
         try{
           const token = req.headers.authorization;
         if(!token) {
             return res.status(500).json({message: "You are not allowed!!"});
         }
-        const decoded = jwt.verify(token, config.secret as string);
+        const decoded = jwt.verify(token, config.secret as string) as JwtPayload;
         console.log({decoded});
-        req.user = decoded as JwtPayload;
+        req.user = decoded ;
+        //["admin"]
+        if(roles.length && !roles.includes(decoded.role as string)) {
+            return res.status(500).json({
+             error: "unauthorized!!!",
+            })
+        }
         next();
         //req.user er modhdhe decoded k keno set kora holo??
         //karon, req.user k amar ekhon service theke or controller theke , jekhan theke ichcha niye ashte pari..R compare korte pari j amader kache j user ta esheche..amra j input diyechi sei user er email, ar ja decode kore dilam token tar email similar kina..

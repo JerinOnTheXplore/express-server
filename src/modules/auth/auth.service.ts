@@ -17,7 +17,7 @@ const loginUser = async (email: string, password: string)=>{
 //token = payload+secret+ algorithm/koto time pore expire hobe
 
 
-const token = jwt.sign({name: user.name, email: user.email}, config.secret as string, {
+const token = jwt.sign({name: user.name, email: user.email, role: user.role}, config.secret as string, {
     expiresIn: "7d",
 });
 console.log({token});
